@@ -1,0 +1,65 @@
+
+const MOSCOW_COORDINATES = { lat: 55.7522, lng: 37.6155 };
+
+
+function setYMapMarkers(opts) {
+  const options = {
+    ymap: opts.ymap,
+    url: opts.url || '/',
+    balloonUrl: opts.balloonUrl || '',
+  };
+
+  options.urlParams = opts.urlParams || { bbox: '%b', api: 'yandex' };
+  if (opts.urlParams) {
+    options.urlParams.bbox = opts.urlParams.bbox || '%b';
+    options.urlParams.api = opts.urlParams.api || 'yandex';
+  }
+
+  const defaultObjectManagerOptions = {
+    clusterize: true,
+    clusterOpenBalloonOnClick: false,
+    gridSize: 40,
+    margin: 20,
+    minClusterSize: 3,
+    maxZoom: 14,
+    getObjectIconImageSize: [32, 46],
+    geoObjectIconShadow: true,
+    geoObjectIconShadowLayout: 'default#image',
+    geoObjectIconShadowImageHref: 'https://www.tourprom.ru/site_media/images/redesign/touropedia/map/marker-shadow.png',
+  };
+
+  const buildedUrlParams = objectToUrlParams(options.urlParams);
+  let completeUrl = options.url + buildedUrlParams;
+
+  let objectManager = new ymaps.LoadingObjectManager(
+    completeUrl,
+    defaultObjectManagerOptions,
+  );
+  options.ymap.geoObjects.add(objectManager);
+
+  objectManager.objects.events.add('click', function (e) {
+    var objectId = e.get('objectId');
+    openYMapBaloon(objectManager, objectId, options.balloonUrl);
+  });
+}
+
+
+function openYMapBaloon(objectManager, objectId, balloonUrl) {
+  function hasBalloonData(objectId) {
+    return objectManager.objects.getById(objectId).properties.balloonContent;
+  }
+
+  if (hasBalloonData(objectId)) {
+    objectManager.objects.balloon.open(objectId);
+  } else {
+    let obj = objectManager.objects.getById(objectId);
+    objectManager.objects.balloon.open(objectId);
+
+    fetch(balloonUrl.replace('/0/', `/${objectId}/`)).then(function(response) {
+      return response.text();
+    }).then(function(data){
+      obj.properties.balloonContent = data;
+      objectManager.objects.balloon.open(objectId);
+    });
+  }
+}

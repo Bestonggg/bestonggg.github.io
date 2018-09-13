@@ -1,0 +1,647 @@
+function GuidePanel() {
+    this.getElement = function() {
+        var guidePanel = document.getElementById("guide-panel");
+        return guidePanel;
+    }
+
+    var guidePanel = this.getElement();
+
+    /* -- begin init --
+    Приклеивает гид-панель к низу страницы при прокрутке.
+
+    гид-панель находится в самом низу, над футером
+    и при прокручивании страницы до этого места, гид-панель встаёт на своё место.
+    в остальное время она прилеплена к низу страницы.
+    */
+
+    var guidePanelWrap = document.createElement("div");
+    guidePanelWrap.className = "block guide-panel-wrap";
+
+    // создаём обёртку для guidePanel и перемещаем его в обёртку
+    guidePanel.parentNode.insertBefore(guidePanelWrap, guidePanel);
+    guidePanelWrap.appendChild(guidePanel);
+
+    var bottom_offset = guidePanelWrap.getBoundingClientRect().bottom;
+
+    guidePanel.style.width = $(guidePanelWrap).width() + "px";
+
+    $(window).scroll(function(){
+        bottom_offset = guidePanelWrap.getBoundingClientRect().bottom;
+
+        if(window.innerHeight < bottom_offset) {
+            $(guidePanel).addClass("fixed");
+            guidePanel.style.width = $(guidePanelWrap).width() + "px";
+        } else {
+            $(guidePanel).removeClass("fixed");
+            guidePanel.style.width = $(guidePanelWrap).width() + "px";
+        }
+    });
+    // -- end init --
+}
+
+
+function GuideStartButton(place) {
+    var self = this;
+
+    this.id = "guide-start-button";
+
+    this.getElement = function() {
+        return document.getElementById(this.id);
+    }
+
+    this.getElement().addEventListener("animationend",
+        function(e){
+            console.log("log at end of animation");
+            this.classList.remove("add-item-animation");
+        },
+        false
+    );
+
+    this.addItemAnimation = function() {
+        this.getElement().classList.add("add-item-animation");
+    }
+
+    this.getCounterElement = function() {
+        return this.getElement().querySelector(".counter");
+    }
+
+    this.updateCounter = function(count) {
+        var guideCounter = this.getElement().querySelector(".counter");
+
+        if (count) {
+            removeClass(guideCounter, "empty");
+            guideCounter.innerHTML = count;
+        } else {
+            addClass(guideCounter, "empty");
+        }
+    }
+
+    this.toggleGuidePanel = function () {
+        var guidePanel = document.getElementById("guide-panel");
+
+        if (guidePanel.style.visibility == "visible") {
+            guidePanel.style.visibility = "hidden";
+        } else {
+            guidePanel.style.visibility = "visible";
+        }
+    }
+
+    this.getElement().addEventListener(
+        "click",
+        function() {
+            if (this.className.length) {
+                this.className = "";
+            } else {
+                this.className = "active";
+            }
+
+            self.toggleGuidePanel();
+        },
+        false
+    );
+
+    var counter = createElement(
+        "div",
+        {
+            className: "counter empty",
+        }
+    );
+
+    this.getElement().appendChild(counter);
+
+    document.getElementById(place || "bottom-block").appendChild(this.getElement());
+}
+
+function GuideSlider() {
+    var self = this;
+
+    self.getElement = function() {
+        return document.querySelector(".guide-slider");
+    }
+
+    self.getItemsCount = function() {
+        var count = self.getElement().querySelectorAll(".guide-item").length;
+
+        return count;
+    }
+
+    self.update = function(rewind) {
+        $('.guide-slider').each(function() {
+            var slider = $(this);
+            var container = slider.find('.guide-item-container');
+            var length = self.getItemsCount();
+            var width = container.find('.guide-item').outerWidth(true);
+
+            if(rewind) {
+                var wrap_width = slider.find('.guide-item-wrapper').width();
+                var left = length*width - wrap_width;
+                container.animate({'left': '-' + left + 'px'}, 500);
+            }
+        });
+    }
+
+    self.prev = function() {
+        var slider = $('.guide-slider');
+        var container = slider.find('.guide-item-container');
+        var width = container.find('.guide-item').outerWidth(true);
+        var wrap_width = slider.find('.guide-item-wrapper').width();
+        var left = container.position().left;
+
+        if (left < 0) {
+            left = left + width;
+            container.animate({'left': left + 'px'}, 300);
+        }
+    }
+
+    self.next = function() {
+        var slider = $('.guide-slider');
+        var container = slider.find('.guide-item-container');
+        var width = container.find('.guide-item').outerWidth(true);
+        var wrap_width = slider.find('.guide-item-wrapper').width();
+        var left = container.position().left;
+
+        if(wrap_width - left < container.width()) {
+            left = left - width;
+            container.animate({'left': left + 'px'}, 300);
+        }
+    }
+}
+
+$(function() {
+    var ajax_loader_image = '/site_media/images/ajax-loader.gif';
+    var ajax_progress_image = '/site_media/images/redesign/ajax-progress-bar.gif';
+
+
+    var theGuidePanel = new GuidePanel();
+    var guideStartButton = new GuideStartButton();
+    var guideSlider = new GuideSlider();
+
+    function changeAddButton(button) {
+        if (button.hasClass('in-guide')) {
+            button.text('+ В путеводитель');
+            button.removeClass('in-guide');
+        } else {
+            button.text('Уже в путеводителе');
+            button.addClass('in-guide');
+        }
+    }
+
+    function unauth_guide_id(panel) {
+        // For anonymous user form the guide ID to save it in cookie
+        if ( panel.data('resort') !== undefined ) {
+            return 'resort_' + panel.data('resort');
+        } else if ( panel.data('region') !== undefined ) {
+            return 'region_' + panel.data('region');
+        } else {
+            return 'country_' + panel.data('country');
+        }
+    }
+
+    function unescape_cookie(value) {
+        return value.replace(/\\054/g, ',');
+    }
+
+    function bindEventsToGuideButtons(unauth) {
+        $(document).on('click', '.add-to-guide', function(){
+            var that = $(this);
+
+            if(that.hasClass('in-guide')) {
+                var item_to_delete = panel.find('.guide-item[data-btnid="' + that.data('btnid') + '"]');
+                item_to_delete.find('.guide-item-delete').click();
+            } else if (!that.hasClass('login-opener')) {
+                var add_url = $(this).data('url');
+                var post_data = {};
+
+                if (panel.data('id')) {
+                    post_data['guide_id'] = panel.data('id');
+                }
+
+                // If user is anonymous form the guide ID to save it in cookie
+                if (unauth) {
+                    post_data['guide_id'] = unauth_guide_id(panel)
+                }
+
+                that.prop('disabled', true);
+                that.html('<img src="' + ajax_progress_image + '">');
+
+                $.ajax({
+                    url: add_url,
+                    type: 'POST',
+                    data: post_data
+                }).done(function(data) {
+                    if(data.added) {
+                        if(panel.find('.guide-full').hasClass('hidden')) {
+                            panel.find('.guide-empty').addClass('hidden');
+                            panel.find('.guide-full').removeClass('hidden');
+                        }
+
+                        // TODO: вынести отседова анимацию.
+                        // ----- Анимировать нужно до того как пришёл ответ от сервера
+
+                        // Сашина анимация
+                        var block =  that.parents('.poi-item').find('.poi-item__cover');
+
+                        if(block.length) {
+                            var clone = block.clone();
+                            $('body').append(clone);
+
+                            var $guideSlider = $(guideSlider.getElement());
+                            var lastSliderItem = $guideSlider.find(".guide-item-container").find(".guide-item").last();
+
+                            var animatePlace = {top: 0, left: 0};
+
+                            $guideStartButton = $(guideStartButton.getElement());
+
+                            if (lastSliderItem.length) {
+                                animatePlace.left = lastSliderItem.offset().left + lastSliderItem.width();
+                            } else {
+                                animatePlace.left = $guideSlider.offset().left;
+                            }
+
+                            animatePlace.left = $guideStartButton.offset().left;
+                            animatePlace.top = $guideStartButton.offset().top;
+
+                            clone.css({
+                                'position': 'absolute',
+                                'top': block.offset().top,
+                                'left': block.offset().left,
+                                'z-index': 1000
+                            });
+
+                            clone.animate({
+                                'top': animatePlace.top,
+                                'left': animatePlace.left,
+                                'width': $guideStartButton.width()
+                            }, 280, function() { clone.remove(); });
+                        }
+
+                        guideStartButton.addItemAnimation();
+                        ///
+
+                        if(data.new_guide) {
+                            panel.data('id', data.guide);
+                            var href = panel.find('a.guide-link').attr('href');
+                            if(href != undefined) {
+                                panel.find('a.guide-link').attr('href', href.replace('0', data.guide));
+                            }
+                        }
+
+                        if(data.name) {
+                            panel.find('.guide-title').text(data.name);
+                        }
+
+                        panel.find('.guide-item-container').append(data.html);
+
+                        guideSlider.update(true);
+
+                        guideStartButton.updateCounter(guideSlider.getItemsCount());
+
+                        var new_item = panel.find('.guide-item:last-child');
+                        new_item.hide();
+                        panel.find('.guide-full').addClass('expanded');
+                        new_item.fadeIn(1500);
+
+                        setTimeout(function(){
+                            panel.find('.guide-full').removeClass('expanded');
+                        }, 5000);
+
+
+                        // Update counter
+                        guideStartButton.updateCounter(guideSlider.getItemsCount());
+                    }
+
+                    that.prop('disabled', false);
+
+                    $('.add-to-guide[data-btnid="' + that.data('btnid')  + '"]').each(function(){
+                        changeAddButton($(this));
+                    });
+                });
+            }
+        });
+
+        $(document).on('click', '.guide-item-delete', function(){
+            var url = $(this).data('url');
+            var item = $(this).parents('.guide-item');
+            $.ajax({
+                url: url,
+                type: 'POST'
+            }).done(function(data) {
+                if(data.success) {
+
+                    item.fadeOut(500);
+                    item.remove();
+                    guideSlider.update(true);
+                    guideStartButton.updateCounter(guideSlider.getItemsCount());
+
+                    panel.find('.guide-title').text(data.name);
+                    var btnid = item.data('ctype') + item.data('id');
+                    var btn = $('button[data-btnid="' + btnid + '"]');
+                    btn.each(function(){
+                        changeAddButton($(this));
+                    });
+                }
+            });
+        });
+    }
+
+    if($('.guide-panel').length) {
+        var panel = $('.guide-panel');
+        var url = panel.data('url');
+        var get_data = {}
+        get_data['country'] = panel.data('country');
+        if( panel.data('region') !== undefined )
+            get_data['region'] = panel.data('region');
+        if( panel.data('resort') !== undefined )
+            get_data['resort'] = panel.data('resort');
+        if(panel.data('auth')=='1') {
+
+            function loadGuide() {
+                $.ajax({
+                        url: url,
+                        type: 'GET',
+                        data: get_data
+                    }).done(function(data) {
+
+                        if(data.exists) {
+                            panel.find('.guide-empty').addClass('hidden');
+                            panel.find('.guide-full').removeClass('hidden');
+                            panel.data('id', data.guide);
+                            panel.find('.guide-title').text(data.name);
+                            panel.find('.guide-item-container').append(data.html);
+
+                            guideSlider.update(false);
+                            guideStartButton.updateCounter(guideSlider.getItemsCount());
+
+                            var href = panel.find('.guide-link').attr('href');
+                            panel.find('.guide-link').attr('href', href.replace('0', data.guide));
+
+                            $('.guide-item').each(function() {
+                                var item = $(this);
+                                var btnid = item.data('ctype') + item.data('id');
+                                var btn = $('button[data-btnid="' + btnid + '"]');
+                                btn.each(function(){
+                                    changeAddButton($(this));
+                                });
+                            });
+                        }
+
+                        bindEventsToGuideButtons(false);
+                    });
+            }
+
+            // if there is cookie with unsaved guides, save it, then load guide
+            // else load guide immediately
+            if($.cookie('unsaved_guide')) {
+                $.ajax({
+                    url: panel.data('saveurl'),
+                    type: 'GET'
+                }).done(function(){
+                    loadGuide();
+                });
+            } else {
+                loadGuide();
+            }
+
+        } else {
+            // if user is not authenticated check guides in cookies
+            var cookie = $.cookie('unsaved_guide');
+
+            if(cookie) {
+                cookie = unescape_cookie(cookie);
+                var data = $.parseJSON($.parseJSON(cookie)); // TODO: temporary parse JSON twice, because python escape JSON string in cookie
+                var is_actual_guide = false;
+                var guide_id = unauth_guide_id(panel)
+
+
+                if(guide_id == data['id']) {
+                    // if guide in cookies fits this page's guide, get HTML of guide panel for this guide
+                    $.ajax({
+                            url: url,
+                            type: 'GET',
+                            data: {'guide_id': guide_id}
+                        }).done(function(data) {
+                            if(data.exists) {
+                                panel.find('.guide-empty').addClass('hidden');
+                                panel.find('.guide-full').removeClass('hidden');
+                                panel.data('id', data.guide);
+                                panel.find('.guide-item-container').append(data.html);
+
+                                guideSlider.update(false);
+                                guideStartButton.updateCounter(guideSlider.getItemsCount());
+
+                                $('.guide-item').each(function() {
+                                    var item = $(this);
+                                    var btnid = item.data('ctype') + item.data('id');
+                                    var btn = $('button[data-btnid="' + btnid + '"]');
+                                    btn.each(function(){
+                                        changeAddButton($(this));
+                                    });
+                                });
+
+                            }
+                        });
+                }
+            }
+
+            bindEventsToGuideButtons(true);
+        }
+
+        $('.guide-panel').on('click', '.guide-open-new', function() {
+            panel.find('.guide-empty').removeClass('hidden');
+            panel.find('.guide-full').addClass('hidden');
+            panel.removeData('id');
+            panel.find('.guide-title').text('');
+            panel.find('.guide-item-container').empty();
+            $('.add-to-guide.in-guide').each(function() {
+                changeAddButton($(this));
+            });
+        });
+
+        $('.guide-panel').on('click', '.guide-slider-prev', function() {
+            guideSlider.prev();
+        });
+
+        $('.guide-panel').on('click', '.guide-slider-next', function() {
+            guideSlider.next();
+        });
+    }
+
+    $('.guide-make-active').on('click', function(){
+        var url = $(this).data('url');
+        $.ajax({
+            url: url,
+            type: 'GET'
+        }).done(function(data) {
+            alert('Готово!');
+        });
+    });
+
+    $('.guide-title-edit-btn').on('click', function() {
+        $('.guide-title').addClass('hidden');
+        $('.guide-title-edit-btn').addClass('hidden');
+        $('.guide-title-edit').removeClass('hidden');
+        $('.guide-title-edit input[type="text"]').val($('.guide-title').text());
+    });
+
+    $('.guide-title-edit-cancel').on('click', function() {
+        $('.guide-title-edit').addClass('hidden');
+        $('.guide-title').removeClass('hidden');
+        $('.guide-title-edit-btn').removeClass('hidden');
+    });
+
+    $('.guide-title-edit-save').on('click', function() {
+        var url = $(this).data('url');
+        var val = $('.guide-title-edit input[type="text"]').val().trim();
+        if(val.length) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {'name': val}
+            }).done(function(data) {
+                if(data.success) {
+                    $('.guide-title').text(val);
+                    $('.guide-title-edit').addClass('hidden');
+                    $('.guide-title').removeClass('hidden');
+                    $('.guide-title-edit-btn').removeClass('hidden');
+                }
+            });
+        };
+    });
+
+    $(document).on('click', '.remove-from-guide', function(){
+        var url = $(this).data('url');
+        var item = $(this).parents('.poi');
+        $.ajax({
+            url: url,
+            type: 'POST'
+        }).done(function(data) {
+            if(data.success) {
+                item.fadeOut(500, function(){
+                    item.prev('.subtitle').remove();
+                    item.remove();
+                });
+                $('.guide-title').text(data.name);
+            }
+        });
+    });
+
+    $('.guide-info').on('click', '.add-area-to-guide', function() {
+        var that = $(this);
+        var inputs = that.parent().find('.add-area-input-wrapper');
+        that.addClass('hidden');
+        inputs.removeClass('hidden');
+    });
+
+    $('.guide-info').on('click', '.add-area-save', function() {
+        var url = $(this).data('url');
+        var wrapper = $(this).parent('.add-area-input-wrapper');
+        var input = wrapper.find('.autocomplete-input');
+        if(input.val().length) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {'area': input.val()}
+            }).done(function(data) {
+                if(data.success) {
+                    wrapper.parent().find('.area-list').append(', ' + data.area_link);
+                    wrapper.addClass('hidden');
+                    wrapper.parent().find('.add-area-to-guide').removeClass('hidden');
+                } else {
+                    alert('Регион или страна не найдена');
+                }
+            });
+        }
+
+    });
+
+    if($().datepicker) {
+        $('.guide-datestart, .guide-dateend').datepicker($.datepicker.regional["ru"]);
+    }
+
+    $('.guide-dates-edit').on('click', function() {
+        $(this).addClass('hidden');
+        $('.guide-dates-wrapper').removeClass('hidden');
+    });
+
+    $('.save-guide-dates').on('click', function() {
+        var wrapper = $(this).parent();
+        $.ajax({
+            url: $(this).data('url'),
+            type: 'POST',
+            data: {
+                'date_start': wrapper.find('input.guide-datestart').val(),
+                'date_end': wrapper.find('input.guide-dateend').val()
+                }
+        }).done(function(data) {
+            wrapper.addClass('hidden');
+            $('.guide-dates-edit').text(data.dates);
+            $('.guide-dates-edit').removeClass('hidden');
+        });
+    });
+
+    if($().sortable) {
+        $('.guide-pois-sortable').sortable({
+            items: ".poi",
+            placeholder: "sortable-placeholder",
+            cursor: 'move',
+            axis: 'y',
+            update: function( event, ui ) {
+                var last_resort = 0;
+                var order = [];
+                $(this).children('.subtitle').remove();
+                $(this).find('.poi').each(function(i){
+                    var $poi = $(this);
+                    if(i%2==0)
+                        $poi.removeClass('even').addClass('odd');
+                    else
+                        $poi.removeClass('odd').addClass('even');
+                    if(last_resort != $poi.data('resort')) {
+                        $poi.find('.subtitle').clone().removeClass('hidden').insertBefore($poi);
+                        last_resort = $poi.data('resort');
+                    }
+                    order.push($poi.data('itemid'));
+                });
+                $.ajax({
+                    url: $(this).data('order-url'),
+                    type: 'POST',
+                    data: {'order': order.join()}
+                }).done(function(data) {
+
+                });
+            }
+        });
+        $('.guide-pois-sortable').disableSelection();
+    }
+
+    $('.guide-remove-btn').on('click', function() {
+        var url = $(this).data('url');
+        confirm('Вы действительно хотите удалить путеводитель?', function() {
+            location.href = url;
+        });
+    });
+
+    var myDropzone = null;
+    if($('.guide-cover-wrapper .my-dropzone').length) {
+        var photo_url = $('.guide-cover-wrapper .my-dropzone').data('url');
+
+        myDropzone = new Dropzone(
+            ".guide-cover-wrapper .my-dropzone",
+            {
+                url: photo_url,
+                acceptedFiles: 'image/*',
+                maxFilesize: 8,
+                addRemoveLinks: true,
+                dictRemoveFile: 'Удалить',
+                dictCancelUpload: ''
+            }
+        );
+
+        myDropzone.on("success", function(file, response) {
+            if(response.success) {
+                  $('img.guide-cover').attr('src', response.img);
+                  myDropzone.removeFile(file);
+            }
+        });
+
+    }
+});

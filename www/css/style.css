@@ -1,0 +1,370 @@
+@charset "utf-8";
+*
+{
+	margin:0;
+	padding:0;
+	
+}
+html {}
+body
+{
+
+	color: #333;
+	background: #f7f7f7;
+	font-size: 1em;
+	font-family: "Segoe UI", sans-serif;
+	
+}
+a 
+{
+	color: #000000;
+	text-decoration: none;
+	transition: all.6s ease;
+	-moz-transition: all.6s ease;
+	-webkit-transition: all.6s ease;
+	-ms-transition: all.6s ease;
+}
+a:hover 
+{
+	color: #8b9ff5;
+	text-decoration: none;
+	transition: all.6s ease;
+	-moz-transition: all.6s ease;
+	-webkit-transition: all.6s ease;
+	-ms-transition: all.6s ease;
+}
+a:active
+{
+	color: #8ce4a6;
+}
+img 
+{
+	max-width: 100%;
+	height: auto;
+	width: auto\9;
+}
+	.right{float: right}
+	.left{float: left}
+	
+/* Selection Block*/
+::selection {background: #1E90FF; color:#fff}
+::-moz-selection {background: #1E90FF; color:#fff}	
+header, footer
+{
+
+background-color: #f7f7f7;
+
+}
+header 
+{
+	
+	padding:1%;
+}
+#menu1{
+    position:relative;
+    display:block;
+    width:100%;
+    height:auto;
+    z-index:10;
+}
+    #menu1 ul{
+        font-weight: bold;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: black!important;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.015), inset 0 2px 8px rgba(0,0,0,0.075), 0 1px rgba(255,255,255,0.9);
+    vertical-align: top;
+     background-color: rgba(0,137,255,0.31);
+    
+    position: relative;
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: auto;
+    list-style: none;
+    }
+    #menu1 > ul::after{
+        display:block;
+        width:100%;
+        height:0px;
+        clear:both;
+        content:" ";
+    }
+        #menu1 ul li{
+			    font-weight: bold;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: black!important;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.015), inset 0 2px 8px rgba(0,0,0,0.075), 0 1px rgba(255,255,255,0.9);
+    vertical-align: top;
+    position: relative;
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: auto;
+    list-style: none;
+            position:relative;
+            display:block;
+            float:left;
+            width:auto;
+            height:auto;
+        }
+            #menu1 ul li a{
+                display:block;
+                padding:9px 25px 0px 25px;
+                font-size:14px;
+                font-family:Arial, sans-serif;
+                line-height:1.3em;
+                text-decoration:none;
+                font-weight:bold;
+                text-transform:uppercase;
+                height:36px;
+                box-sizing:border-box;
+            }
+            #menu1 ul li > a:hover, #menu1 ul li:hover > a{
+                background:rgba(0,137,255,0.31);
+                color:#2B45E0;
+            }
+#menu1 ul li ul{
+    position:absolute;
+    top:36px;
+    left:0px;
+    display:none;
+    width:168px;
+    background-color: rgba(0,137,255,1);
+}
+#menu1 ul li:hover ul{display:block;}/*эта строчка реализует механизм выпадения*/
+    #menu1 ul li ul li{
+        float:none;
+        width:100%;
+    }
+        #menu1 ul li ul li a{
+            display:block;
+            text-transform:none;
+            height:auto;
+            padding:10px 25px;
+            width:100%;
+            box-sizing:border-box;
+            border-top:1px solid #ffffff;
+        }
+        #menu1 ul li ul li:first-child a{border-top:0px;}
+        #menu1 ul li ul li a:hover{
+            background-color: rgba(0,137,255,1);
+            color:#6572BC;
+        }			
+
+#footer {
+	    max-width: 1080px;
+    min-width: 480px;
+    margin: 0px auto 0;
+    height: 30px;v
+    position: relative;
+    font-weight: bold;
+    display: block;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: black!important;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.015), inset 0 2px 8px rgba(0,0,0,0.075), 0 1px rgba(255,255,255,0.9);
+    vertical-align: top;
+    padding: 5px;
+    background-color: rgba(0, 137, 255, 0.1);
+    border-bottom: 1px solid #e0e0e0;
+}
+footer img {
+	float: right;
+width: 3%;}
+.FooterBody {
+    max-width: 1080px;
+    min-width: 480px;
+    background-color: rgb(252, 252, 255);
+    padding: 10px;
+    margin: 10px auto 0px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -moz-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -khtml-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+      
+}
+.Prava {
+	
+	float: left;
+}
+
+
+
+
+
+
+	
+
+
+
+
+.PageContainer {
+	
+    max-width: 1080px;
+	min-width: 480px;
+	background-color: rgb(252, 252, 255);
+    padding: 10px;
+    margin: 10px auto;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -moz-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -khtml-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+
+}
+.PageContainer1 {
+    
+	font-weight: bold;
+    width: auto;
+    display: block;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: black!important;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.015), inset 0 2px 8px rgba(0,0,0,0.075), 0 1px rgba(255,255,255,0.9);
+    vertical-align: top;
+    padding: 5px;
+	
+    background-color: rgba(0, 137, 255, 0.1);
+    border-bottom: 1px solid #e0e0e0;
+
+}
+.PageContainerBody {
+	min-height: 900px;
+    max-width: 1080px;
+	min-width: 480px;
+	background-color: rgb(252, 252, 255);
+    padding: 10px;
+    margin: 10px auto;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -moz-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    -khtml-box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.125);
+
+}
+.PageContainerBody1 {
+    min-height: 900px;
+	font-weight: bold;
+    width: auto;
+    display: block;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: black!important;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.015), inset 0 2px 8px rgba(0,0,0,0.075), 0 1px rgba(255,255,255,0.9);
+    vertical-align: top;
+    padding: 5px;
+
+    background-color: rgba(0, 137, 255, 0.1);
+    border-bottom: 1px solid #e0e0e0;
+
+}
+.pictures img {
+     float:left;
+	 height:280px;
+	width:33%;
+	 
+}
+
+.Fon1 {
+	font-weight: bold;
+    text-align: center;
+    color: black;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(0, 0, 0, 0.015), inset 0 2px 8px rgba(0, 0, 0, 0.075), 0 1px rgba(255, 255, 255, 0.9);
+    vertical-align: top;
+    padding: 5px;
+    background-color: rgba(0, 137, 255, 0.31);
+    border-bottom: 1px solid #FFFFFF;
+	
+	
+	
+}
+.FonForTabs {
+	border: 1px solid rgb(250, 250, 250);
+    padding: 5px;
+    background-position: inherit;
+    background-repeat: no-repeat;
+    color: black !important;
+    text-decoration: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.24), inset 0 0 0 1px rgba(0, 0, 0, 0.015), inset 0 2px 8px rgba(0, 0, 0, 0.075), 0 1px rgba(255, 255, 255, 0.9);
+    background-color: #F2F9FF;
+    margin: 0px 0px 0px 0px;
+	
+	
+	
+}
+.PageContainer7 {
+	margin-top: 5px;
+}
+.imgimg{
+	padding: 5px;
+
+	padding-top:40px;
+}
+.PageContainer7 {
+	margin-top: 5px;
+}
+
+img[src="../image/anapa1.jpg"]{
+        width: 1080px;
+        height: 150px;
+}
+img[src="image/more.jpg"]{
+        width: 1080px;
+        height: 600px;
+}
+img[src="../image/10.jpg"]{
+        width: 1080px;
+        height: 700px;
+}
+img[src="../image/malaya.jpg"]{
+        width: 1080px;
+        height: 700px;
+}
+img[src="../image/Novoros.jpg"]{
+        width: 1080px;
+        height: 500px;
+}
+img[src="../image/Gelend.jpg"]{
+        width: 1080px;
+        height: 300px;
+}
+img[src="../image/031.jpg"]{
+        width: 1080px;
+        height: 700px;
+}
+img[src="../image/Kabar.jpg"]{
+        width: 1080px;
+        height: 400px;
+}
+img[src="../image/032.jpg"]{
+        width: 1080px;
+        height: 700px;
+}
+img[src="../image/Sochi.png"]{
+        width: 1080px;
+        height: 400px;
+}
+H3 { text-align: center;
+    padding-top:20px;
+	padding-bottom:2px;
+
+ }

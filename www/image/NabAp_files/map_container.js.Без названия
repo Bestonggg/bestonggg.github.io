@@ -1,0 +1,156 @@
+define(
+    ['jquery'], function($){
+
+    return function(selector, options) {
+        /*
+        Контейнер для карты
+        - содержит одну или несколько карт во вкладках
+        - сворачивается/разворачивается
+        */
+        var $this = this;
+
+        this.options = options || {
+            opened: false,
+            animationSpeed: 300
+        };
+
+        this.selector = selector || "#mapContainer";
+        this.mapContainerElement = $(this.selector);
+
+        this.$ = this.mapContainerElement;
+
+        this.render = function() {
+            // Оборачиваем все карты в div.map-list
+            var mapList = $("<div>").addClass('map-list');
+            var mapListWrap = $("<div>").addClass('map-list--wrap');
+
+            $this.mapListWrap = mapListWrap;
+            $this.mapList = mapList;
+
+            $this.mapListWrap.append(mapList);
+
+            $this.mapContainerElement.append(mapListWrap);
+            $this.mapList.append($this.mapContainerElement.find("> *").not(mapListWrap));
+
+            // Если не назначена активная карта - назначаем первую
+            if ( !mapList.find('> .active').length ) {
+                mapList.find('> *').first().addClass('active');
+                $this.mapContainerElement.trigger("map-container-tab-activate");
+            } else {
+                var c_map = mapList.find('> .active').first();
+                $this.mapContainerElement.trigger("map-container-tab-activate");
+                $this.mapContainerElement.trigger(
+                    "map-container-tab-activate--" + c_map.attr('id').replace("#", "")
+                );
+            }
+
+            // Создаём вкладки для каждой карты
+            var mapTabs = $('<div>').addClass('map-tabs');
+            $this.mapTabs = mapTabs;
+            mapListWrap.before(mapTabs);
+
+            // Создаём вкладки для каждой карты
+            mapList.find("> *").each(function(e){
+                var self = $(this);
+                self.addClass('map-list__item');
+
+                var tab = $('<div>').attr('data-target', "#" + self.attr('id'));
+                tab.addClass("map-tabs__item");
+                if ( self.hasClass('active') ) {
+                    tab.addClass('active');
+
+                    $this.mapContainerElement.trigger(
+                        "map-container-tab-activate--" + self.attr('id')
+                    );
+                }
+                // Название вкладки берём из атрибута title
+                tab.text(self.attr('title'));
+
+                // Активация вкладок с картой
+                tab.click(function(){
+                    var self = $(this);
+                    var tab_target = self.attr('data-target');
+
+                    mapList.find(tab_target).addClass('active');
+                    mapList.find("> *").not(tab_target).removeClass('active');
+
+                    mapTabs.find("> *").not(self).removeClass('active');
+                    self.addClass('active');
+
+                    $this.mapContainerElement.trigger("map-container-tab-activate");
+                    $this.mapContainerElement.trigger(
+                        "map-container-tab-activate--" + tab_target.replace("#", "")
+                    );
+                });
+
+                mapTabs.append(tab);
+            });
+
+            // Создаём сворачиватель карты
+            $this.mapToggler = $('<div>').addClass('map-container__toggler');
+            $this.mapListWrap.parent().append($this.mapToggler);
+            $this.mapToggler.click(function(){
+                $this.$.trigger("map-container-toggle");
+            });
+
+
+            // Кнопка закрытия карты
+            $this.mapCloser = $('<span>').addClass('close');
+            $this.mapCloser.attr("title", "Закрыть карту");
+            $this.mapTabs.append($this.mapCloser);
+            $this.mapCloser.click(function(){
+                $this.$.trigger("map-container-close");
+            });
+
+            $this.width = $this.mapContainerElement.width();
+            $this.$.css({'width': $this.width});
+            $this.top = $this.mapContainerElement.offset().top;
+
+            if (!$this.options.opened) {
+                $this.mapContainerElement.addClass('hidden');
+                $this.mapToggler.addClass("opener");
+                $this.mapToggler.attr('title', 'Открыть');
+            }
+        }
+
+        this.open = function() {
+            $this.mapContainerElement.removeClass('hidden');
+            $this.mapToggler.removeClass("opener");
+            $this.mapToggler.attr('title', 'Закрыть');
+            $this.mapTabs.show();
+        }
+
+        this.close = function() {
+            $this.mapContainerElement.addClass('hidden');
+            $this.mapToggler.addClass("opener");
+            $this.mapToggler.attr('title', 'Открыть');
+        }
+
+        this.toggle = function() {
+            if (!$this.mapContainerElement.hasClass('hidden')) {
+                $this.close();
+            } else {
+                $this.open();
+            }
+        }
+
+        this.mapContainerElement.on('map-container-open', function(){
+            $this.open();
+        });
+
+        this.mapContainerElement.on('map-container-close', function(){
+            $this.close();
+        });
+
+        this.mapContainerElement.on('map-container-toggle', function(){
+            $this.toggle();
+        });
+    }
+
+    /*
+    $(function(){
+        var map_container = new mapContainer("#map-container");
+        map_container.render();
+    });
+    */
+});

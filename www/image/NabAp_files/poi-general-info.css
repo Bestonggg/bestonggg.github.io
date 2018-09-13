@@ -1,0 +1,220 @@
+.poi-general-info .poi-icon,
+.poi-general-info .title {
+  display: inline-block;
+  line-height: 29px;
+  vertical-align: middle;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.poi-general-info .subtitle {
+  margin-left: 33px;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+.poi-general-info .poi-info-icon {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 1.28571429em;
+  line-height: 24px;
+  font-size: 24px;
+  width: 33px;
+  text-align: center;
+}
+.poi-general-info .unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  cursor: default;
+}
+.poi-general-info .poi-info-text {
+  line-height: 24px;
+  vertical-align: middle;
+  font-size: .8em;
+  margin-bottom: 12px;
+  display: list-item;
+}
+.poi-general-info .poi-info-text > * {
+  flex-direction: column;
+}
+.poi-general-info .poi-info-text.hidden {
+  display: none;
+}
+.poi-general-info .poi-info-text .editable,
+.poi-general-info .poi-info-text .show-on-map {
+  padding: 1pt .5em;
+}
+.poi-general-info .no-icon .poi-info-icon:before {
+  content: "";
+}
+.poi-general-info .poi_address .poi-info-icon:before {
+  content: "\f041";
+}
+.poi-general-info .poi_phone .poi-info-icon:before {
+  content: "\f095";
+}
+.poi-general-info .poi_web .poi-info-icon:before {
+  content: "\f08e";
+}
+.poi-general-info .poi_prices .poi-info-icon:before {
+  content: "\f158";
+}
+.poi-general-info .poi_time .poi-info-icon:before {
+  content: "\f017";
+}
+.poi-general-info .poi_cousine .poi-info-icon:before {
+  content: "\f03a";
+}
+.poi-general-info .map-edit-popup {
+  display: none;
+}
+.poi-general-info .simple-inline-edit .editable,
+.poi-general-info .simple-inline-edit .edit-input {
+  transition: width 0.3s ease-in-out;
+  height: 24px;
+  line-height: 24px;
+  vertical-align: middle;
+}
+.poi-general-info .simple-inline-edit .edit-input {
+  border: none;
+  outline: 1px solid lightgray;
+}
+.poi-general-info .hidden {
+  display: none !important;
+}
+.poi-general-info .edit-cancel,
+.poi-general-info .edit-save,
+.poi-general-info .simple-inline-edit-btn {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  cursor: default;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 2pt;
+  border-width: 0;
+  box-shadow: none;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 7px;
+  vertical-align: middle;
+  height: 24px;
+  line-height: 24px;
+  margin: 2pt 0;
+}
+.poi-general-info .edit-cancel:focus,
+.poi-general-info .edit-save:focus,
+.poi-general-info .simple-inline-edit-btn:focus {
+  outline: none;
+}
+.poi-general-info .edit-cancel:hover,
+.poi-general-info .edit-save:hover,
+.poi-general-info .simple-inline-edit-btn:hover {
+  text-decoration: none;
+}
+.poi-general-info .edit-cancel:active,
+.poi-general-info .edit-save:active,
+.poi-general-info .simple-inline-edit-btn:active {
+  transition-property: transform;
+  transition-duration: 0.1s;
+}
+.poi-general-info .edit-cancel-default,
+.poi-general-info .edit-save-default,
+.poi-general-info .simple-inline-edit-btn-default {
+  color: white;
+  background-color: #E01F25;
+}
+.poi-general-info .edit-cancel-default:hover,
+.poi-general-info .edit-save-default:hover,
+.poi-general-info .simple-inline-edit-btn-default:hover {
+  text-decoration: none;
+  background-color: #f13036;
+  color: #2B2A28;
+}
+.poi-general-info .edit-cancel--fullwidth,
+.poi-general-info .edit-save--fullwidth,
+.poi-general-info .simple-inline-edit-btn--fullwidth {
+  display: block;
+}
+.poi-general-info .edit-cancel--small,
+.poi-general-info .edit-save--small,
+.poi-general-info .simple-inline-edit-btn--small {
+  height: 24px;
+  line-height: 24px;
+}
+.poi-general-info .edit-cancel--simple,
+.poi-general-info .edit-save--simple,
+.poi-general-info .simple-inline-edit-btn--simple {
+  background-color: transparent;
+  border-color: #2B2A28;
+  border-width: 1px;
+  border-style: solid;
+}
+.poi-general-info .edit-cancel:before,
+.poi-general-info .edit-save:before,
+.poi-general-info .simple-inline-edit-btn:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.poi-general-info .edit-cancel {
+  background-color: #E01F25;
+  color: white;
+}
+.poi-general-info .edit-cancel:hover {
+  background-color: #ff1f25;
+  color: #000000;
+}
+.poi-general-info .edit-cancel:before {
+  content: "\f00d";
+}
+.poi-general-info .edit-save:before {
+  content: "\f0c7";
+}
+.poi-general-info .simple-inline-edit-btn:before {
+  content: "\f044";
+}
+.poi-general-info .float-right {
+  float: right;
+}
+.poi-general-info .poi-cuisine-list {
+  transition: all .3s ease;
+}
+.poi-general-info .poi-cuisine-list .edit-tag {
+  transition: all .3s ease;
+  border: 1px solid lightgray;
+  border-radius: 3pt;
+  padding: 2pt;
+}
+.poi-general-info .poi-cuisine-list .edit-tag .delete:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  content: "\f00d";
+}
+.map-edit-popup .edit-map-canvas {
+  width: 100%;
+  height: 400px;
+  box-sizing: border-box;
+  padding: 0;
+}

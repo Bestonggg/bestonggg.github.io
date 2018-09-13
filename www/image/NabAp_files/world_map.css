@@ -1,0 +1,56 @@
+.world-map-canvas {
+  /*width: 980px;*/
+  height: 400px;
+}
+.world-map-balloon .country-icon {
+  float: left;
+  margin: 3px 10px 6px 0;
+  width: 55px;
+  height: 33px;
+}
+.world-map-balloon .country-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.world-map-balloon .country-title a {
+  color: #39458F;
+  text-decoration: none;
+}
+.world-map-balloon .city-title {
+  font-size: 17px;
+  font-weight: bold;
+}
+.world-map-balloon .city-title a {
+  color: #d30b25;
+  text-decoration: none;
+}
+.world-map-balloon .local-time {
+  clear: both;
+  font-size: 13px;
+  margin: 7px 0 0 0;
+}
+.world-map-balloon .general-weather {
+  width: 150px;
+}
+.world-map-balloon .general-weather .weather-pict {
+  float: left;
+}
+.world-map-balloon .general-weather span {
+  font-size: 22px;
+  vertical-align: top;
+  margin: 22px 0 0 0;
+  display: inline-block;
+  font-weight: bold;
+}
+.world-map-balloon .links {
+  clear: both;
+  margin: 5px 0;
+  padding-left: 18px;
+}
+.general-weather .blue {
+  color: blue;
+}
+.general-weather .red {
+  color: red;
+}

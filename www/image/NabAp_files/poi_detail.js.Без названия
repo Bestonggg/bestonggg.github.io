@@ -1,0 +1,344 @@
+require([
+  'jquery',
+  'lib',
+  'js/components/map_container',
+  'js/countries/yandex_poi_map',
+  'js/countries/google_poi_map',
+  'js/countries/poi_rating_popup',
+  'tiny_mce'
+], function(jQuery, lib, mapContainer) {
+  var map_container = new mapContainer("#map-container");
+  map_container.render();
+
+  // OLD CODE FROM media/js/main.js:2231
+  function closeInlineEditor($parent) {
+    $parent.find('.edit-toolbox, .simple-edit-toolbox').addClass('hidden');
+    $parent.find('.editable').removeClass('hidden');
+    $parent.find('.inline-edit-link, .simple-inline-edit-btn').removeClass('hidden');
+  }
+
+  function showAlert(text) {
+    alert(text);
+  }
+
+  // OLD CODE FROM media/js/main.js:2080
+  tinymce_poi_options = {
+    theme: "advanced",
+    plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,images,iespell,inlinepopups,media,contextmenu,paste,directionality,noneditable,visualchars,nonbreaking,print,fullscreen",
+    theme_advanced_buttons1 : "bold,italic,underline,strikethrough,link,unlink,justifyleft,justifycenter,justifyright,cut,copy,paste,pasteword,pastetext,table,images,|,bullist,numlist,outdent,indent,|,undo,redo,|,code,cleanup,print,fullscreen",
+    theme_advanced_buttons2 : "",
+    theme_advanced_buttons3 : "",
+    theme_advanced_toolbar_location : "top",
+    theme_advanced_toolbar_align : "left",
+    theme_advanced_statusbar_location : "bottom",
+    theme_advanced_resizing : true,
+    theme_advanced_resize_horizontal : false,
+    convert_urls : false
+  };
+
+  // Old code from media/js/main.js:2110
+  $('.inline-edit-link').on('click', function(){
+    var $that = $(this);
+
+    if($that.parents('.expandable-content.minimized').length) {
+      $that.parents('.expandable-content.minimized').siblings('.expand-btn').click();
+    }
+
+    var $parent = $(this).parents('.inline-edit');
+    var is_plain = false;
+    if($parent.hasClass('inline-edit-plain'))
+      is_plain = true;
+    var url = $parent.data('url');
+    $that.addClass('hidden');
+    $.ajax({
+      url: url
+    }).done(function(data) {
+      var $editable = $parent.find('.editable');
+      var $textarea = $parent.find('.edit-toolbox textarea');
+      $editable.addClass('hidden');
+      $parent.find('.edit-toolbox').removeClass('hidden');
+      var content = '';
+      if(data.text == null || data.text == '') {
+        if($that.hasClass('poi-edit-link'))
+          if(is_plain)
+            content = strip_html($.trim($editable.html()));
+          else
+            content = $.trim($editable.html());
+      } else {
+        content = data.text;
+      }
+      $textarea.val(content);
+      if(typeof(tinyMCE)!='undefined' && !is_plain) {
+        var editor = tinyMCE.get($textarea.attr('id'));
+        if(typeof(editor) == 'undefined') {
+          tinymce_poi_options['mode'] = "exact";
+          tinymce_poi_options['elements'] = $textarea.attr('id');
+          tinyMCE.init(tinymce_poi_options);
+        } else {
+          editor.setContent(content);
+        }
+      }
+    });
+    return false;
+  });
+
+  $('.edit-toolbox').on('click', '.edit-save', function() {
+    var $parent = $(this).parents('.inline-edit');
+    var is_plain = false;
+    if($parent.hasClass('inline-edit-plain'))
+      is_plain = true;
+    var $textarea = $parent.find('.edit-toolbox textarea');
+    var url = $parent.data('url');
+    if(typeof(tinyMCE)!='undefined' && !is_plain)
+      tinyMCE.triggerSave();
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: {'text': $textarea.val()}
+    }).done(function(data) {
+      if(data.success) {
+        if(is_plain)
+          $parent.find('.editable').html(linebreaks_2_p(data.text));
+        else
+          $parent.find('.editable').html(data.text);
+        closeInlineEditor($parent);
+        if(!data.moderated) {
+          showAlert('Ваши изменения отправлены на модерацию', 'ok');
+        }
+      }
+    });
+  });
+
+  $('.edit-toolbox').on('click', '.edit-cancel', function() {
+    closeInlineEditor($(this).parents('.inline-edit'));
+  });
+
+  $('.simple-inline-edit-btn').on('click', function(){
+    var $that = $(this);
+    var $parent = $(this).parents('.simple-inline-edit');
+    var url = $parent.data('url');
+    $that.addClass('hidden');
+    $.ajax({
+      url: url
+    }).done(function(data) {
+      var $editable = $parent.find('.editable');
+      var $input = $parent.find('.simple-edit-toolbox input[type="text"]');
+      $editable.addClass('hidden');
+      $parent.find('.simple-edit-toolbox').removeClass('hidden');
+      var content = '';
+      if(data.text != null && data.text != '') {
+        content = strip_html(data.text);
+      }
+      $input.val(content);
+    });
+  });
+
+  $('.simple-edit-toolbox').on('click', '.edit-cancel', function() {
+    closeInlineEditor($(this).parents('.simple-inline-edit'));
+  });
+
+  $('.poi-info-expand').on('click', function() {
+    $('.poi-info-text.hidden').removeClass('hidden');
+    $(this).remove();
+  });
+
+  $('.simple-edit-toolbox').on('click', '.edit-save', function() {
+    var $parent = $(this).parents('.simple-inline-edit');
+    var $input = $parent.find('.simple-edit-toolbox input[type="text"]');
+    var url = $parent.data('url');
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: {'text': $input.val()}
+    }).done(function(data) {
+      if(data.success) {
+        $parent.find('.editable').html(strip_html(data.text));
+        closeInlineEditor($parent);
+        if(!data.moderated) {
+          showAlert('Ваши изменения отправлены на модерацию', 'ok');
+        }
+      }
+    });
+  });
+
+  // -- Parallax initialize
+  if($('.parallax-photo').length) {
+
+    var view_height = $(window).height();
+
+    $(window).scroll(function() {
+      $('.parallax-photo').each(function(){
+        var $that = $(this);
+        var container_height = $that.parent().height();
+        var step = view_height / ($that.height() - container_height);
+        if(step < 2) step = 2;
+        var scroll = $(window).scrollTop();
+        var top = $that.offset().top + container_height - view_height;
+        if( scroll > top && scroll < (top + view_height) ) {
+          var margin = (scroll - top) / step;
+          $that.css('margin-top', '-' + margin + 'px');
+        }
+      });
+    });
+  }
+
+  // -- Initialize POI Coordinates Editor
+  var emap = null;
+
+  $(".poi-map-edit-btn").on('click', function(){
+    var popup = $('#map-edit-popup');
+    var canvas = $('#edit-map-canvas');
+    var lat_input = $('#map-edit-popup input[name="lat"]');
+    var lng_input = $('#map-edit-popup input[name="lng"]');
+
+    if(emap)
+      return;
+    var marker = null;
+
+    function setYMarker(coords) {
+      var marker = new ymaps.Placemark(coords, {}, {
+        iconLayout: 'default#image',
+        iconImageHref: canvas.data('marker-icon'),
+        iconImageSize: [28, 42],
+        draggable: true
+      });
+      marker.events.add('dragend', function (e) {
+        var new_coords = marker.geometry.getCoordinates();
+        lat_input.val(new_coords[0]);
+        lng_input.val(new_coords[1]);
+      });
+      emap.geoObjects.add(marker);
+      return marker;
+    }
+
+    function setGMarker(lat, lng) {
+      var marker = new google.maps.Marker({
+        map: emap,
+        position: new google.maps.LatLng(lat, lng),
+        icon: canvas.data('marker-icon'),
+        draggable:true
+      });
+      google.maps.event.addListener(marker, 'dragend', function(event) {
+        lat_input.val(event.latLng.lat());
+        lng_input.val(event.latLng.lng());
+      });
+
+      return marker;
+    }
+
+    if(canvas.data('type')=='google') {
+      var mapOptions = {
+        zoom:15,
+        mapTypeId:google.maps.MapTypeId.ROADMAP
+      }
+
+      if(lat_input.val()!="" && lng_input.val()!="") {
+        // Если у объекта есть коорд-ты, используем их
+        mapOptions.center = new google.maps.LatLng(lat_input.val(), lng_input.val())
+        emap = new google.maps.Map(document.getElementById("edit-map-canvas"), mapOptions);
+        marker = setGMarker(lat_input.val(), lng_input.val());
+      } else {
+        // Если у объекта нет координат, то находим коорд-ты города через геокодер
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({'address':canvas.data('geocode')}, function (results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            var center = results[0].geometry.location;
+            var bounds = results[0].geometry.viewport;
+            mapOptions.center = center;
+            emap = new google.maps.Map(document.getElementById("edit-map-canvas"), mapOptions);
+            emap.fitBounds(bounds);
+            google.maps.event.addListener(emap, 'click', function(event) {
+              var lat = event.latLng.lat();
+              var lng = event.latLng.lng();
+              if(!marker) {
+                marker = setGMarker(lat, lng);
+                lat_input.val(lat);
+                lng_input.val(lng);
+              }
+            });
+          }
+        });
+      }
+
+    } else if(canvas.data('type')=='yandex') {
+      ymaps.ready(function () {
+        if(lat_input.val()!="" && lng_input.val()!="") {
+          // Если у объекта есть коорд-ты, используем их
+          var mapOptions = {
+            'center': [lat_input.val(), lng_input.val()],
+            'zoom': 15
+          }
+          emap = new ymaps.Map("edit-map-canvas", mapOptions);
+          marker = setYMarker([lat_input.val(), lng_input.val()]);
+        } else {
+          // Если у объекта нет координат, то находим коорд-ты города через геокодер
+          var geocoder = ymaps.geocode(canvas.data('geocode'))
+            .then(function (res) {
+              var center = res.geoObjects.get(0).geometry.getCoordinates();
+              var bounds = res.geoObjects.get(0).properties.get('boundedBy');
+              emap = new ymaps.Map("edit-map-canvas", {'center': center, 'zoom': 15});
+              emap.setBounds(bounds, {checkZoomRange:true});
+              emap.events.add('click', function (e) {
+                var coords = e.get('coords');
+                if(!marker) {
+                  marker = setYMarker(coords);
+                  lat_input.val(coords[0]);
+                  lng_input.val(coords[1]);
+                }
+              });
+            },
+            function (err) {
+              ymap = new ymaps.Map("poi-ymap-canvas", {'center': [0,0], 'zoom': 15});
+            });
+        }
+
+      });
+    }
+
+    $('#map-edit-popup input').on('change', function(){
+      var lat_input = $('#map-edit-popup input[name="lat"]');
+      var lng_input = $('#map-edit-popup input[name="lng"]');
+      if(canvas.data('type')=='google') {
+        var location = new google.maps.LatLng(lat_input.val(), lng_input.val());
+        if(marker) {
+          marker.setPosition(location);
+        } else {
+          marker = setGMarker(lat_input.val(), lng_input.val());
+        }
+        emap.setCenter(location);
+      }
+      if(canvas.data('type')=='yandex' && emap) {
+        var coords= [lat_input.val(), lng_input.val()];
+        if(marker) {
+          marker.geometry.setCoordinates(coords);
+        } else {
+          marker = setYMarker(coords);
+        }
+        emap.setCenter(coords);
+      }
+    });
+
+    $('.coords-save-btn').on('click', function(){
+      var $that = $(this);
+      $('#map-edit-popup .errors').text('');
+      var url = $that.data('url');
+      var lat = $('#map-edit-popup input[name="lat"]').val();
+      var lng = $('#map-edit-popup input[name="lng"]').val();
+      $that.attr('disabled', 'disabled');
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: {'lat': lat, 'lng': lng}
+      }).done(function(data) {
+          if(data.success) {
+            $('#map-edit-popup .close').click();
+          } else {
+            $('#map-edit-popup .errors').text('Неправильные координаты');
+          }
+          $that.removeAttr('disabled');
+        });
+
+    });
+  });
+  // -- end POI Coord editor
+});

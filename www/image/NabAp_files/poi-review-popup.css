@@ -1,0 +1,26 @@
+.poi-review-popup {
+  width: 600px;
+  margin: 0 auto;
+}
+.poi-review-popup .rating-field-line {
+  display: flex;
+  margin-top: 1em;
+}
+.poi-review-popup .rating-field-line .rating-field-label,
+.poi-review-popup .rating-field-line .rating-field-input {
+  flex-direction: column;
+}
+.poi-review-popup .rating-field-line .rating-field-label {
+  width: 40%;
+  padding-right: 1em;
+}
+.poi-review-popup .rating-field-line .rating-field-input {
+  vertical-align: top;
+  margin-top: 0;
+}
+.poi-review-popup .star-input-hint {
+  display: none;
+}
+.poi-review-popup .block {
+  margin-top: 1em;
+}

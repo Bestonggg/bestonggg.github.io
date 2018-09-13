@@ -1,0 +1,119 @@
+require([
+  'jquery',
+  'https://api-maps.yandex.ru/2.1/?lang=ru_RU',
+  'js/utils/ymaps',
+  'js/components/map_container',
+], function(){
+  var mapContainer = document.getElementById("ymap");
+  var current_lng = parseFloat(mapContainer.getAttribute('data-lng'));
+  var current_lat = parseFloat(mapContainer.getAttribute('data-lat'));
+  var theMapCenter = [MOSCOW_COORDINATES.lat, MOSCOW_COORDINATES.lng];
+
+  if (current_lat && current_lng) {
+    theMapCenter = [
+      current_lat,
+      current_lng
+    ];
+  }
+
+  var geodata = {};
+
+  var ymap_init = function(){
+    var mapTypes = [
+      'yandex#map', // тип карты "схема";
+      'yandex#satellite', // тип карты "спутник";
+      'yandex#hybrid' // "гибрид"
+    ];
+
+    var zoom = 6;
+    var mapType = mapTypes[0];
+
+    var canvas = $("#map-container");
+    var ymap = new ymaps.Map("ymap", {
+      center: theMapCenter,
+      zoom: zoom,
+      type: mapType
+    });
+
+    ymap.controls.remove('searchControl');
+    ymap.controls.remove('trafficControl');
+
+    if (geodata.hasOwnProperty('geometry')) {
+      // Если геометрия уже есть, то сразу создаем карту
+      ymap.setCenter(geodata.geometry.center);
+      ymap.setBounds(geodata.geometry.bounds, {checkZoomRange:true})
+        .then(function () {
+          // Синхронизируем масштаб с другими картами
+          zoom = geodata.geometry['zoom'];
+          ymap.setZoom(zoom);
+        }
+      );
+
+      // setYMapMarkers(ymap);
+      setYMapMarkers({
+        ymap: ymap,
+        urlParams: {
+          zoom: ymap.getZoom()
+        },
+        category: mapContainer.getAttribute('data-category'),
+        url: mapContainer.getAttribute('data-url'),
+        balloon_id: mapContainer.getAttribute('data-objectid'),
+        balloonUrl: mapContainer.getAttribute('data-balloonurl'),
+      });
+    } else {
+      // Если геометрии еще нет, то геокодируем адрес, потом создаем карту
+      var geocoder = ymaps.geocode(canvas.data('geocode'))
+        .then(function (res) {
+          center = res.geoObjects.get(0).geometry.getCoordinates()
+          var bounds = res.geoObjects.get(0).properties.get('boundedBy');
+
+          geodata['geometry'] = {
+            center: center,
+            bounds: bounds
+          };
+
+          ymap.setCenter(center);
+
+          ymap.setBounds(bounds, {checkZoomRange:true}).then(
+            function () {
+              geodata.geometry['zoom'] = ymap.getZoom();
+
+              // ymap.setZoom(ymap.getZoom());
+
+              // Патч для России
+              // if(canvas.data('geocode') == 'Россия') {
+              //   ymap.setCenter(center);
+              // }
+            }
+          );
+
+          setYMapMarkers({
+            ymap: ymap,
+            urlParams: {
+              zoom: ymap.getZoom()
+            },
+            category: mapContainer.getAttribute('data-category'),
+            url: mapContainer.getAttribute('data-url'),
+            balloon_id: mapContainer.getAttribute('data-objectid'),
+            balloonUrl: mapContainer.getAttribute('data-balloonurl'),
+          });
+        }
+      );
+    }
+
+    $(".show-on-map").click(function(event){
+      event.preventDefault();
+      var lng = parseFloat(this.getAttribute('data-lng'));
+      var lat = parseFloat(this.getAttribute('data-lat'));
+
+      ymap.setCenter([lat, lng]);
+      ymap.setZoom(15);
+
+      $("#map-container").trigger("map-container-open");
+    });
+  }
+
+  ymaps.ready(function(){
+    ymap_init();
+  });
+});

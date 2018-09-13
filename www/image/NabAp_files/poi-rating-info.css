@@ -1,0 +1,162 @@
+.poi-rating-info {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  outline: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1em;
+  background-color: white;
+}
+.poi-rating-info .title {
+  display: inline-block;
+  line-height: 32px;
+  font-weight: bold;
+}
+.poi-rating-info .prorating {
+  border-radius: 50%;
+  border: 1px solid #2B2A28;
+  height: 32px;
+  line-height: 32px;
+  opacity: 1;
+  overflow: hidden;
+  transition: opacity .4s;
+  width: 32px;
+  border-color: #E01F25;
+  color: #E01F25;
+  font-size: 90%;
+  text-align: center;
+  opacity: 0.5;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  cursor: default;
+  display: inline-block;
+  vertical-align: middle;
+}
+.poi-rating-info .positions {
+  margin-bottom: 1em;
+}
+.poi-rating-info .positions li {
+  list-style: none;
+}
+.poi-rating-info .user-ratings {
+  margin-bottom: 1em;
+}
+.poi-rating-info strong.red,
+.poi-rating-info a {
+  color: #E01F25;
+}
+.poi-rating-info a:hover {
+  text-decoration: underline;
+}
+.poi-rating-info .stat {
+  margin-bottom: 1em;
+}
+.poi-rating-info .stat-item {
+  margin-bottom: 0.5em;
+}
+.poi-rating-info .link,
+.poi-rating-info .star,
+.poi-rating-info .value,
+.poi-rating-info .scale {
+  display: inline-block;
+  vertical-align: middle;
+}
+.poi-rating-info .value {
+  width: 65px;
+  text-align: right;
+}
+.poi-rating-info .scale {
+  width: 90px;
+  height: 15px;
+  background-color: #f5f5f5;
+}
+.poi-rating-info .scale .fill {
+  height: 15px;
+  background-color: #2f77b9;
+}
+.poi-rating-info .star {
+  display: inline-block;
+}
+.poi-rating-info .star .icon {
+  margin: 0 2pt;
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 1.28571429em;
+  text-align: center;
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+}
+.poi-rating-info .star .icon:before {
+  content: "\f005";
+  color: #2f77b9;
+}
+.poi-rating-info .rating-widget-btn {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  cursor: default;
+  cursor: pointer;
+  border-radius: 2pt;
+  border-width: 0;
+  box-shadow: none;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 7px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  vertical-align: middle;
+  height: 24px;
+  line-height: 24px;
+  margin: 2pt 0;
+  background-color: #E01F25;
+  color: white;
+}
+.poi-rating-info .rating-widget-btn:focus {
+  outline: none;
+}
+.poi-rating-info .rating-widget-btn:hover {
+  text-decoration: none;
+}
+.poi-rating-info .rating-widget-btn:active {
+  transition-property: transform;
+  transition-duration: 0.1s;
+}
+.poi-rating-info .rating-widget-btn-default {
+  color: white;
+  background-color: #E01F25;
+}
+.poi-rating-info .rating-widget-btn-default:hover {
+  text-decoration: none;
+  background-color: #f13036;
+  color: #2B2A28;
+}
+.poi-rating-info .rating-widget-btn--fullwidth {
+  display: block;
+}
+.poi-rating-info .rating-widget-btn--small {
+  height: 24px;
+  line-height: 24px;
+}
+.poi-rating-info .rating-widget-btn--simple {
+  background-color: transparent;
+  border-color: #2B2A28;
+  border-width: .1rem;
+  border-style: solid;
+}
+.poi-rating-info .rating-widget-btn:hover {
+  background-color: #ff1f25;
+  color: #000000;
+}

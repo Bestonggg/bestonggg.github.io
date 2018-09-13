@@ -1,0 +1,32 @@
+.i-was-here.active {
+  color: #E01F25;
+  border-bottom-width: 1px;
+  border-bottom-style: dashed;
+  border-bottom-color: #E01F25;
+}
+.poi-rating-popup {
+  width: 500px;
+  margin: 0 auto;
+}
+.poi-rating-popup .rating-field-line {
+  display: flex;
+  margin-top: 1em;
+}
+.poi-rating-popup .rating-field-line .rating-field-label,
+.poi-rating-popup .rating-field-line .rating-field-input {
+  flex-direction: column;
+}
+.poi-rating-popup .rating-field-line .rating-field-label {
+  width: 40%;
+  padding-right: 1em;
+}
+.poi-rating-popup .rating-field-line .rating-field-input {
+  vertical-align: top;
+  margin-top: 0;
+}
+.poi-rating-popup .star-input-hint {
+  display: none;
+}
+.poi-rating-popup .block {
+  margin-top: 1em;
+}

@@ -1,0 +1,11 @@
+
+$(function(){
+  // Старый код подсвечивания звёзд рейтинга (до redesign2)
+  $(document).on('click', '.star-input li', function() {
+    var width = $(this).width();
+    $(this).parents('.star-input').find('li.current').width(width);
+    $(this).parents('.star-input').find('input').prop('checked', false);
+    $(this).find('input').prop('checked', 'checked');
+    $(this).parents('.star-input').siblings('.star-input-hint').find('.current').text($(this).attr('title'));
+  });
+});

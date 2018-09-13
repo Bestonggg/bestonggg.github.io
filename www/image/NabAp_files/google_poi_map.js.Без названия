@@ -1,0 +1,192 @@
+require([
+    'jquery',
+    'marker-clusterer',
+    // "http://maps.google.com/maps/api/js?key={{ GOOGLE_API_KEY }}", // как передать ключ из django в этот файл?
+], function(){
+    const MoscowCoordinates = {lat: 55.7522, lng: 37.6155}
+    var geodata = {};
+
+    window.onload = function(){
+        var canvas = document.getElementById('map-container');
+
+        var mapOptions = {
+            center: MoscowCoordinates,
+            zoom: 8,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+
+        var gmap = new google.maps.Map(
+            document.getElementById('gmap'),
+            mapOptions
+        );
+
+
+        // Если задан конкретный объект, то используем его координаты для отображения карты
+        if(canvas.getAttribute('data-objectid')) {
+            gmap.setCenter({
+                lat: canvas.getAttribute("data-lat"),
+                lng: canvas.getAttribute("data-lng"),
+            });
+
+            mapOptions.zoom = 15;
+
+            google.maps.event.addListenerOnce(gmap, 'bounds_changed', function () {
+                setGMapMarkers();
+            });
+
+            return;
+        }
+
+        if (geodata.hasOwnProperty('geometry')) {
+            // Если геометрия уже есть, то сразу создаем карту
+            mapOptions.center = new google.maps.LatLng(
+                geodata.geometry.center[0],
+                geodata.geometry.center[1]
+            );
+            gmap = new google.maps.Map(
+                document.getElementById("gmap"),
+                mapOptions
+            );
+            var sw = new google.maps.LatLng(
+                geodata.geometry.bounds[0][0],
+                geodata.geometry.bounds[0][1]
+            );
+            var ne = new google.maps.LatLng(
+                geodata.geometry.bounds[1][0],
+                geodata.geometry.bounds[1][1]
+            );
+            gmap.fitBounds(new google.maps.LatLngBounds(sw, ne));
+            google.maps.event.addListenerOnce(gmap, 'bounds_changed', function () {
+                // Синхронизируем масштаб с другими картами
+                gmap.setZoom(geodata.geometry.zoom);
+                setGMapMarkers();
+            });
+        } else {
+            // Если геометрии еще нет, то геокодируем адрес, потом создаем карту
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode(
+                {'address': canvas.getAttribute('data-geocode')},
+                function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    var center = results[0].geometry.location;
+                    var bounds = results[0].geometry.viewport;
+                    mapOptions.center = center
+                    gmap = new google.maps.Map(document.getElementById("gmap"), mapOptions);
+                    geodata['geometry'] = {
+                        center:[center.lat(), center.lng()],
+                        bounds:[
+                            [bounds.getSouthWest().lat(), bounds.getSouthWest().lng()],
+                            [bounds.getNorthEast().lat(), bounds.getNorthEast().lng()]
+                        ]
+                    }
+                    gmap.fitBounds(bounds);
+                    google.maps.event.addListenerOnce(gmap, 'bounds_changed', function () {
+                        geodata.geometry['zoom'] = gmap.getZoom();
+                        setGMapMarkers(gmap);
+                    });
+                } else {
+                    gmap = new google.maps.Map(document.getElementById("gmap"), mapOptions);
+                }
+            });
+        }
+
+        $(".show-on-map").click(function(event){
+            event.preventDefault();
+            var lng = parseFloat(this.getAttribute('data-lng'));
+            var lat = parseFloat(this.getAttribute('data-lat'));
+
+            gmap.setCenter({lat: lat, lng: lng});
+            gmap.setZoom(15);
+
+            var mc_event_open = new Event("map-container-open");
+            document.getElementById("map-container").dispatchEvent(mc_event_open);
+        });
+    };
+
+
+    function setGMapMarkers(gmap) {
+        var dataContainer = $('#map-container');
+        var category = dataContainer.data('category');
+        var url = dataContainer.data('url');
+        var baloon_id = dataContainer.data('objectid');
+        var baloonUrl = dataContainer.data('baloonurl');
+
+        var infowindow = new google.maps.InfoWindow();
+        var gmarkers = {};
+
+        function showMarkers() {
+            var bbox_value = '';
+            var _bbox_value = gmap.getBounds().getSouthWest().lat() + "," +
+                             gmap.getBounds().getSouthWest().lng() + "," +
+                             gmap.getBounds().getNorthEast().lat() + "," +
+                             gmap.getBounds().getNorthEast().lng();
+
+            $.ajax({
+                // url: url + "?bbox=" + bbox_value + "&api=google"
+                url: url + "?api=google" // all POIs
+            }).done(function(data) {
+                var markers = [];
+
+                $.each(data.features, function(i, feature) {
+                    if(feature.geometry.type == "Point") {
+                        if(!(feature.id in gmarkers)) {
+                            var marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(
+                                    feature.geometry.coordinates[1],
+                                    feature.geometry.coordinates[0]
+                                ),
+                                id: feature.id,
+                                title: feature.properties.name,
+                                icon: feature.properties.icon,
+                                shadow: 'https://www.tourprom.ru/site_media/images/redesign/touropedia/map/marker-shadow.png'
+                            });
+
+                            marker.info_content = null;
+
+                            google.maps.event.addListener(marker, 'click', function() {
+                                if(marker.info_content) {
+                                    infowindow.setContent(marker.info_content);
+                                    infowindow.open(gmap, marker);
+                                } else {
+                                    // infowindow.setContent('<div class="map-baloon-load"><img src="' + ajax_loader_image + '"></div>');
+                                    infowindow.open(gmap, marker);
+                                    $.ajax({
+                                        url: baloonUrl.replace('/0/', '/' + marker.id + '/')
+                                    }).done(function(data) {
+                                        infowindow.setContent(data);
+                                        marker.info_content = data;
+                                    });
+
+                                }
+
+                                var mc_event_open = new Event("map-container-open");
+                                document.getElementById("map-container").dispatchEvent(mc_event_open);
+                            });
+
+                            markers.push(marker);
+                            gmarkers[feature.id] = marker;
+
+                            if(baloon_id && feature.id==baloon_id) {
+                                new google.maps.event.trigger(marker, 'click');
+                            }
+                        }
+                    }
+                });
+
+                var cluster = new MarkerClusterer(
+                    gmap,
+                    markers,
+                    {
+                        gridSize: 24,
+                        minimumClusterSize: 3,
+                        maxZoom: 14,
+                        imagePath: '/static/vendor/js-marker-clusterer/images/m'
+                    }
+                );
+            });
+        }
+
+        // showMarkers();
+        google.maps.event.addListener(gmap, 'idle', showMarkers);
+    }
+});

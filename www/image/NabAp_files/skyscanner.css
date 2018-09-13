@@ -1,0 +1,23 @@
+#ss-wl-search-widget .search-button {
+  width: 64px;
+}
+#ss-wl-search-widget .container {
+  width: 100%;
+  max-width: 936px;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  min-height: 185px !important;
+}
+.skyscanner-large {
+  max-width: 960px;
+}
+.skyscanner-large .panel-body {
+  min-height: 186px;
+  padding: 1em;
+}
+.panel.skyscanner-compact {
+  width: 324px;
+}
+.skyscanner-compact .panel-body {
+  height: 515px;
+}
